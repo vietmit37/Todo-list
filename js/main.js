@@ -1,9 +1,11 @@
-import { fetchData, addData, deleteDataID, updateDataID } from "./service.js";
+import { callAPI } from "./service.js";
 import TODO from "./toDoList.js";
+
 let tasks = [];
 const getEle = (id) => document.getElementById(id);
+
 const getList = () => {
-  fetchData()
+  callAPI("todo", "GET", null)
     .then((res) => {
       renderList(res.data);
       tasks = res.data;
@@ -13,6 +15,7 @@ const getList = () => {
     });
 };
 getList();
+
 const renderList = (data) => {
   let { pending, complete } = data.reduce(
     (acc, item) => {
@@ -31,7 +34,6 @@ const renderList = (data) => {
            </div>
         </li>
         </tr>`;
-
       acc[isComplete ? "complete" : "pending"] += li;
       return acc;
     },
@@ -40,11 +42,12 @@ const renderList = (data) => {
   getEle("completed").innerHTML = complete;
   getEle("todo").innerHTML = pending;
 };
+
 getEle("addItem").addEventListener("click", () => {
   let name = getEle("newTask").value.trim();
   let data = new TODO("", name, "pending");
   if (name) {
-    addData(data)
+    callAPI("todo", "POST", data)
       .then(() => {
         getList();
       })
@@ -56,21 +59,24 @@ getEle("addItem").addEventListener("click", () => {
 });
 
 const deleteData = (id) => {
-  deleteDataID(id)
-    .then(() => {
-      getList();
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+  if (confirm("Bạn có muốn xóa không?")) {
+    callAPI(`todo/${id}`, "DELETE", null)
+      .then(() => {
+        getList();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
 };
+
 const updateValue = (select, id) => {
   let name =
     select.parentElement.firstElementChild.nextElementSibling.innerText;
   let value = select.checked ? "completed" : "pending";
   let data = new TODO(id, name, value);
 
-  updateDataID(id, data)
+  callAPI(`todo/${id}`, "PUT", data)
     .then(() => {
       getList();
     })
