@@ -23,7 +23,7 @@ const renderList = (data) => {
       let isComplete = value === "completed" ? "checked" : "";
 
       const li = `<tr>
-        <li class=${isComplete}>
+        <li class=${isComplete} >
           <label for="${id}" >
             <input type="checkbox" onclick="updateValue(this,${id})" id="${id}" ${isComplete}/>
             <span class=${isComplete}>${name}</span>
